@@ -5,20 +5,28 @@ declare(strict_types=1);
 use Cycle\Database\Config;
 
 return [
+    /**
+     * Database logger configuration
+     */
     'logger' => [
-        'default' => null,
+        'default' => null, // Default log channel for all drivers (The lowest priority)
         'drivers' => [
-            // 'runtime' => 'stdout'
+            // By driver name (The highest priority)
+            // See https://spiral.dev/docs/extension-monolog
+            'runtime' => 'sql_logs',
+
+            // By driver class (Medium priority)
+            \Cycle\Database\Driver\MySQL\MySQLDriver::class => 'console',
         ],
     ],
 
     /**
      * Default database connection
      */
-    'default' => 'default',
+    'default' => env('DB_DEFAULT', 'default'),
 
     /**
-     * The Spiral/Database module provides support to manage multiple databases
+     * The Cycle/Database module provides support to manage multiple databases
      * in one application, use read/write connections and logically separate
      * multiple databases within one connection using prefixes.
      *
@@ -39,8 +47,10 @@ return [
      */
     'drivers' => [
         'runtime' => new Config\SQLiteDriverConfig(
-            connection: new Config\SQLite\MemoryConnectionConfig(),
-            queryCache: true
+            connection: new Config\SQLite\FileConnectionConfig(
+                database: env('DB_DATABASE', directory('root') . 'runtime/app.db')
+            ),
+            queryCache: true,
         ),
         // ...
     ],
