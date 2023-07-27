@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Spiral\Queue\Driver\SyncDriver;
+use Spiral\Queue\Interceptor\Consume\ErrorHandlerInterceptor;
 use Spiral\RoadRunner\Jobs\Queue\MemoryCreateInfo;
 use Spiral\RoadRunner\Jobs\Queue\AMQPCreateInfo;
 use Spiral\RoadRunner\Jobs\Queue\BeanstalkCreateInfo;
@@ -35,31 +36,32 @@ return [
         'roadrunner' => [
             'driver' => 'roadrunner',
             'default' => 'memory',
-            'pipelines' => [
-                'memory' => [
-                    'connector' => new MemoryCreateInfo('local'),
-                    // Run consumer for this pipeline on startup (by default)
-                    // You can pause consumer for this pipeline via console command
-                    // php app.php queue:pause local
-                    'consume' => true,
-                ],
-                // 'amqp' => [
-                //     'connector' => new AMQPCreateInfo('bus', ...),
-                //     // Don't consume jobs for this pipeline on start
-                //     // You can run consumer for this pipeline via console command
-                //     // php app.php queue:resume local
-                //     'consume' => false
-                // ],
-                //
-                // 'beanstalk' => [
-                //     'connector' => new BeanstalkCreateInfo('bus', ...),
-                // ],
-                //
-                // 'sqs' => [
-                //     'connector' => new SQSCreateInfo('amazon', ...),
-                // ],
-            ],
         ],
+    ],
+
+    'pipelines' => [
+        'memory' => [
+            'connector' => new MemoryCreateInfo('local'),
+            // Run consumer for this pipeline on startup (by default)
+            // You can pause consumer for this pipeline via console command
+            // php app.php queue:pause local
+            'consume' => true,
+        ],
+        // 'amqp' => [
+        //     'connector' => new AMQPCreateInfo('bus', ...),
+        //     // Don't consume jobs for this pipeline on start
+        //     // You can run consumer for this pipeline via console command
+        //     // php app.php queue:resume local
+        //     'consume' => false
+        // ],
+        //
+        // 'beanstalk' => [
+        //     'connector' => new BeanstalkCreateInfo('bus', ...),
+        // ],
+        //
+        // 'sqs' => [
+        //     'connector' => new SQSCreateInfo('amazon', ...),
+        // ],
     ],
 
     'driverAliases' => [
@@ -69,5 +71,12 @@ return [
 
     'registry' => [
         'handlers' => [],
+    ],
+
+    'interceptors' => [
+        'push' => [
+            ErrorHandlerInterceptor::class,
+        ],
+        'consume' => [],
     ],
 ];
